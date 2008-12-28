@@ -1,21 +1,15 @@
 <?php
-# Mantis - a php based bugtracking system
-
-# Copyright (C) 2000 - 2002  Kenzaburo Ito - kenito@300baud.org
-# Copyright (C) 2002 - 2008  Mantis Team   - mantisbt-dev@lists.sourceforge.net
-
-# Mantis is free software: you can redistribute it and/or modify
+# Copyright (C) 2008-2009	Victor Boctor
+#
+# This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 2 of the License, or
+# the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Mantis is distributed in the hope that it will be useful,
+# This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Mantis.  If not, see <http://www.gnu.org/licenses/>.
 
 require_once( config_get( 'absolute_path' ) . 'core.php' );
 require_once( config_get( 'class_path' ) . 'MantisPlugin.class.php' );
@@ -33,7 +27,7 @@ class ManTweetPlugin extends MantisPlugin {
 		$this->description	= lang_get( 'plugin_ManTweet_description' );
 		$this->page		= 'config';
 
-		$this->version		= '1.0';
+		$this->version		= '2.0';
 		$this->requires		= array(
 			'MantisCore' => '1.2.0',
 		);
@@ -48,10 +42,60 @@ class ManTweetPlugin extends MantisPlugin {
 	 */
 	function config() {
 		return array(
+			/**
+			 * This options indicates whether the Tweets are
+			 * going to be local to the MantisBT instance or
+			 * are based on search query from Twitter tweets.
+			 * 
+			 * MANTWEET_SOURCE_LOCAL
+			 * MANTWEET_SOURCE_TWITTER
+			 */
+			'tweets_source' => 'twitter',
+
+			/**
+			 * Access level threshold required to view the ManTweets
+			 */
 			'view_threshold'	=>	DEVELOPER,
+			
+			/**
+			 * Access level threshold required to post to ManTweet.
+			 * This is only applicable if tweets_source is set to
+			 * MANTWEET_SOURCE_LOCAL.
+			 */
 			'post_threshold'	=>	DEVELOPER,
+			
+			/**
+			 * Avatar size.
+			 */
 			'avatar_size'		=>	48,
+			
+			/**
+			 * Tweets from user above or equal this threshold
+			 * are published to the Twitter account used by
+			 * core MantisBT. 
+			 */
 			'post_to_twitter_threshold'	=> NOBODY,
+			
+			/**
+			 * This is the query used to search for relevant
+			 * tweets to be imported.  This is done via the
+			 * Twitter API.
+			 * 
+			 * This is only applicable if tweets_source is set
+			 * to MANTWEET_SOURCE_TWITTER.
+			 * 
+			 * e.g. '#mantisbt OR @mantisbt' 
+			 */
+			'import_query'		=> '#mantisbt OR @mantisbt OR from:mantisbt',
+			
+			/**
+			 * This is the default post text.  In case of source
+			 * being local, this should typically be empty.  In
+			 * case of Twitter source, this should be @ + name
+			 * or # + name.  Where such default would match the
+			 * import_query.  For example, @mantisbt.
+			 */
+			'post_default_text' => '@mantisbt ',
 		);
 	}
 
@@ -69,6 +113,21 @@ class ManTweetPlugin extends MantisPlugin {
 					date_submitted	T		NOTNULL,
 					date_updated	T		NOTNULL
 				" )
+			),
+			array( 'AddColumnSQL',
+				array( plugin_table( 'updates' ), "
+					tw_username		C(64) 	NOTNULL DEFAULT \" '' \""
+				)
+			),
+			array( 'AddColumnSQL',
+				array( plugin_table( 'updates' ), "
+					tw_avatar		C(250) 	NOTNULL DEFAULT \" '' \""
+				)
+			),
+			array( 'AddColumnSQL',
+				array( plugin_table( 'updates' ), "
+					tw_id			I	 	UNSIGNED DEFAULT '0'"
+				)
 			),
 		);
 	}

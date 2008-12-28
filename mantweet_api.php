@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2008	Victor Boctor
+# Copyright (C) 2008-2009	Victor Boctor
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -10,6 +10,8 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
+
+require_once( 'twitter_api.php' );
 
 /**
  * A class that contains all the information relating to a tweet.
@@ -27,7 +29,8 @@ class MantweetUpdate
 	var $status = '';
 	
 	/**
-	 * The tweet author id (i.e. user id)
+	 * The tweet author id (i.e. user id) or 0 for tweets imported
+	 * from twitter.
 	 */
 	var $author_id = 0;
 	
@@ -37,6 +40,24 @@ class MantweetUpdate
 	 */
 	var $project_id = ALL_PROJECTS;
 	
+	/**
+	 * For tweets imported from twitters this is set to Twitter
+	 * tweet id.  Otherwise it is set to 0.
+	 */
+	var $tw_id = 0;
+	
+	/**
+	 * For tweets imported from Twitter this is set to Twitter
+	 * user name of the author of the tweet, otherwise 0.
+	 */
+	var $tw_username = '';
+	
+	/**
+	 * For tweets imported from Twitter this is set to the URL
+	 * of the user's avatar, otherwise it is left empty.
+	 */
+	var $tw_avatar = '';
+
 	/**
 	 * The submission timestamp for the tweet.  This is setup by the mantweet_add()
 	 * function.
@@ -57,7 +78,9 @@ class MantweetUpdate
  * @returns bool true for yes, otherwise false.
  */
 function mantweet_can_post() {
-	return access_has_global_level( plugin_config_get( 'post_threshold' ) );
+	return 
+		( plugin_config_get( 'tweets_source' ) == 'local' ) && 
+		access_has_global_level( plugin_config_get( 'post_threshold' ) );
 }
 
 /**
@@ -116,6 +139,9 @@ function mantweet_get_page( $p_page_id, $p_per_page ) {
 		$t_current_update->author_id = (integer)$t_row['author_id'];
 		$t_current_update->project_id = (integer)$t_row['project_id'];
 		$t_current_update->status = $t_row['status'];
+		$t_current_update->tw_id = $t_row['tw_id'];
+		$t_current_update->tw_username = $t_row['tw_username'];
+		$t_current_update->tw_avatar = $t_row['tw_avatar'];
 		$t_current_update->date_submitted = db_unixtimestamp( $t_row['date_submitted'] );
 		$t_current_update->date_updated = db_unixtimestamp( $t_row['date_updated'] );
 
@@ -137,4 +163,97 @@ function mantweet_get_updates_count() {
 	$t_result = db_query_bound( $t_query, null );
 
 	return db_result( $t_result );
+}
+
+/**
+ * Deletes all tweets in the database.
+ */
+function mantweet_purge() {
+	$t_updates_table = plugin_table( 'updates' );
+	$t_query = "DELETE FROM $t_updates_table";
+	db_query( $t_query );	
+}
+
+function mantweet_get_max_twitter_id() {
+	$t_updates_table = plugin_table( 'updates' );
+
+	$t_query = "SELECT tw_id FROM $t_updates_table ORDER BY tw_id DESC";
+	$t_result = db_query( $t_query, 1 );
+	
+	if ( db_num_rows( $t_result ) == 0 ) {
+		return 0;
+	}
+	
+	return db_result( $t_result );
+}
+
+function mantweet_import_from_twitter() {
+	# just for testing.
+	#mantweet_purge();
+
+	$t_connection_options = array(
+		'username'	=> config_get( 'twitter_username' ),
+		'password'	=> config_get( 'twitter_password' ),
+		'type'		=> 'json' //or 'xml'
+	);
+
+	$t_q = plugin_config_get( 'import_query' );
+	$t_results_per_page = 100;
+	$t_page = 1;
+	$t_more_work = true;
+
+	$t_search_since_id = mantweet_get_max_twitter_id();
+
+	while ( $t_more_work )
+	{
+		// Create the Twiter_API object
+		$t_twitter_api = new twitter_api( $t_connection_options );
+
+		$t_search_options = array(
+			'q' => $t_q,
+			'rpp' => $t_results_per_page,
+			'page' => $t_page,
+			'show_user' => false,
+			'since_id' => $t_search_since_id,
+		);
+
+		$t_response = $t_twitter_api->search( $t_search_options );
+
+		# if connection to twitter failed, then exit.
+		if ( !is_object( $t_response ) ) {
+			break;
+		}
+
+		#echo '<pre>';
+		#print_r( $t_response );
+		#echo '</pre>';
+		
+		$t_result_count = count( $t_response->results );
+		
+		if ( $t_result_count > 0 ) {
+			$t_updates_table = plugin_table( 'updates' );
+		
+			foreach ( $t_response->results as $t_tweet ) {
+				// Check that tweet doesn't exist before adding.
+				$t_search_query = "SELECT count(*) FROM $t_updates_table WHERE tw_id = " . db_param( 0 );
+				$t_result = db_query_bound( $t_search_query, array( $t_tweet->id ) );
+
+				// If new, then add it.				
+				if ( db_result( $t_result ) == 0 ) {
+					$t_status = $t_tweet->text;
+					$t_created_at = db_date( strtotime( $t_tweet->created_at ), /* gmt */ false );
+
+					$t_query = "INSERT INTO $t_updates_table ( tw_id, tw_username, tw_avatar, status, date_submitted, date_updated ) VALUES (" . db_param( 0 ) . ", " . db_param( 1 ) . ", " . db_param( 2 ) . ", " . db_param( 3 ) . ", " . db_param( 4 ) . ", " . db_param( 5 ) . ")";
+					db_query_bound( $t_query, array( $t_tweet->id, $t_tweet->from_user, $t_tweet->profile_image_url, $t_status, $t_created_at, $t_created_at ) );
+				}
+			}
+		}
+			
+		$t_page++;		
+		if ( $t_result_count < $t_results_per_page ) {
+			$t_more_work = false;
+		}
+		
+		unset( $t_twitter_api );
+	}
 }

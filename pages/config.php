@@ -32,13 +32,10 @@ print_manage_menu();
 		$t_config_var_name = $p_enum_name.'_enum_string';
 		$t_config_var_value = config_get( $t_config_var_name );
 
-		$t_arr  = explode_enum_string( $t_config_var_value );
-		$t_arr[] = '100:nobody';
-		$t_enum_count = count( $t_arr );
-		for ( $i = 0; $i < $t_enum_count; $i++) {
-			$t_elem  = explode_enum_arr( $t_arr[$i] );
-			$t_key = trim( $t_elem[0] );
-
+		$t_enum_values  = MantisEnum::getAssocArrayIndexedByValues( $t_config_var_value );
+		$t_enum_values[100] = 'nobody';
+		$t_enum_count = count( $t_enum_values );
+		foreach ( $t_enum_values as $t_key => $t_elem ) {
 			if ( $t_key == 100 ) {
 				$t_elem2 = lang_get( 'plugin_ManTweet_access_level_nobody' );
 			} else {
@@ -50,11 +47,23 @@ print_manage_menu();
 			echo ">$t_elem2</option>";
 		} # end for
 	}
+	
+	function print_options_list( $p_assoc_array, $p_selected_value ) {
+		foreach ( $p_assoc_array as $t_value => $t_label ) {
+			echo '<option value="', string_attribute( $t_value ), '"';
+
+			if ( $t_value == $p_selected_value ) { 
+				echo ' selected="selected"';
+			}			
+
+			echo '>', string_attribute( $t_label ), '</option>';
+		}
+	}
 ?>
 
 <br/>
 <form action="<?php echo plugin_page( 'config_edit' ) ?>" method="post">
-<table align="center" class="width50" cellspacing="1">
+<table align="center" class="width75" cellspacing="1">
 
 <tr>
 	<td class="form-title" colspan="2">
@@ -64,9 +73,30 @@ print_manage_menu();
 
 <tr <?php echo helper_alternate_class() ?>>
 	<td class="category" width="60%">
-		<?php echo lang_get( 'plugin_ManTweet_view_threshold' ) ?>
+		<?php
+			echo lang_get( 'plugin_ManTweet_tweets_source' ), '<br />';
+			echo '<font color="red">', plugin_lang_get( 'tweets_source_warning' ), '</font>'; 
+		?>
 	</td>
-	<td class="center" width="40%">
+	<td width="40%">
+		<select name="tweets_source">
+		<?php
+			$t_source_options = array(
+				'local' => "Local Private Tweets",
+				'twitter' => 'Public Tweets from Twitter',
+			);
+
+			print_options_list( $t_source_options, plugin_config_get( 'tweets_source' ) );
+		?>
+		</select>
+	</td>
+</tr>
+
+<tr <?php echo helper_alternate_class() ?>>
+	<td class="category" width="60%">
+		<?php echo plugin_lang_get( 'view_threshold' ) ?>
+	</td>
+	<td width="40%">
 		<select name="view_threshold">
 			<?php print_enum_string_option_list_with_nobody( 'access_levels', plugin_config_get( 'view_threshold' ) ) ?>
 		</select>
@@ -75,9 +105,12 @@ print_manage_menu();
 
 <tr <?php echo helper_alternate_class() ?>>
 	<td class="category">
-		<?php echo lang_get( 'plugin_ManTweet_post_threshold' ) ?>
+		<?php
+			echo plugin_lang_get( 'post_threshold' );
+			echo '<br />', plugin_lang_get( 'only_local_source' );
+		?>
 	</td>
-	<td class="center" width="40%">
+	<td width="40%">
 		<select name="post_threshold">
 			<?php print_enum_string_option_list_with_nobody( 'access_levels', plugin_config_get( 'post_threshold' ) ) ?>
 		</select>
@@ -86,18 +119,44 @@ print_manage_menu();
 
 <tr <?php echo helper_alternate_class() ?>>
 	<td class="category">
-		<?php echo lang_get( 'plugin_ManTweet_avatar_size' ) ?>
+		<?php echo plugin_lang_get( 'avatar_size' ) ?>
 	</td>
-	<td class="center" width="40%">
+	<td width="40%">
 		<input type="text" name="avatar_size" value="<?php echo plugin_config_get( 'avatar_size' ) ?>" maxlength="3" size="3" />
 	</td>
 </tr>
 
 <tr <?php echo helper_alternate_class() ?>>
 	<td class="category">
-		<?php echo lang_get( 'plugin_ManTweet_post_to_twitter_threshold' ) ?>
+		<?php
+			echo plugin_lang_get( 'import_query' );
+			echo '<br />', plugin_lang_get( 'only_twitter_source' );
+		?>
 	</td>
-	<td class="center" width="40%">
+	<td width="40%">
+		<input type="text" name="import_query" value="<?php echo plugin_config_get( 'import_query' ) ?>" size="50" />
+	</td>
+</tr>
+
+<tr <?php echo helper_alternate_class() ?>>
+	<td class="category">
+		<?php
+			echo plugin_lang_get( 'post_default_text' );
+		?>
+	</td>
+	<td width="40%">
+		<input type="text" name="post_default_text" value="<?php echo plugin_config_get( 'post_default_text' ) ?>" size="50" />
+	</td>
+</tr>
+
+<tr <?php echo helper_alternate_class() ?>>
+	<td class="category">
+		<?php
+			echo plugin_lang_get( 'post_to_twitter_threshold' );
+			echo '<br />', plugin_lang_get( 'only_local_source' );
+		?>
+	</td>
+	<td width="40%">
 		<select name="post_to_twitter_threshold">
 			<?php print_enum_string_option_list_with_nobody( 'access_levels', plugin_config_get( 'post_to_twitter_threshold' ) ) ?>
 		</select>
