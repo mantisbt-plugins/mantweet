@@ -128,7 +128,13 @@ function mantweet_get_page( $p_page_id, $p_per_page ) {
 	$t_updates_table = plugin_table( 'updates' );
 	$t_offset = ( $p_page_id - 1 ) * $p_per_page;
 
-	$t_query = "SELECT * FROM $t_updates_table ORDER BY date_submitted DESC";
+	if ( plugin_config_get( 'tweets_source' ) == 'local' ) {
+		$t_where = 'WHERE tw_id = 0';
+	} else {
+		$t_where = 'WHERE tw_id <> 0';
+	}
+
+	$t_query = "SELECT * FROM $t_updates_table $t_where ORDER BY date_submitted DESC";
 	$t_result = db_query_bound( $t_query, null, $p_per_page, $t_offset );
 
 	$t_updates = array();
@@ -158,19 +164,32 @@ function mantweet_get_page( $p_page_id, $p_per_page ) {
  */
 function mantweet_get_updates_count() {
 	$t_updates_table = plugin_table( 'updates' );
+	
+	if ( plugin_config_get( 'tweets_source' ) == 'local' ) {
+		$t_where = 'WHERE tw_id = 0';
+	} else {
+		$t_where = 'WHERE tw_id <> 0';
+	}
 
-	$t_query = "SELECT count(*) FROM $t_updates_table";
+	$t_query = "SELECT count(*) FROM $t_updates_table $t_where";
 	$t_result = db_query_bound( $t_query, null );
 
 	return db_result( $t_result );
 }
 
 /**
- * Deletes all tweets in the database.
+ * Deletes all tweets in the database matching the current tweets source.
  */
 function mantweet_purge() {
 	$t_updates_table = plugin_table( 'updates' );
-	$t_query = "DELETE FROM $t_updates_table";
+
+	if ( plugin_config_get( 'tweets_source' ) == 'local' ) {
+		$t_where = 'WHERE tw_id = 0';
+	} else {
+		$t_where = 'WHERE tw_id <> 0';
+	}
+
+	$t_query = "DELETE FROM $t_updates_table $t_where";
 	db_query( $t_query );	
 }
 
@@ -189,7 +208,7 @@ function mantweet_get_max_twitter_id() {
 
 function mantweet_import_from_twitter() {
 	# just for testing.
-	#mantweet_purge();
+	#mantweet_purge_twitter_tweets();
 
 	$t_connection_options = array(
 		'username'	=> config_get( 'twitter_username' ),

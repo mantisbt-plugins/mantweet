@@ -86,7 +86,7 @@ class ManTweetPlugin extends MantisPlugin {
 			 * 
 			 * e.g. '#mantisbt OR @mantisbt' 
 			 */
-			'import_query'		=> '#mantisbt OR @mantisbt OR from:mantisbt',
+			'import_query'		=> '#mantisbt OR from:mantisbt OR to:mantisbt OR mantisbt',
 			
 			/**
 			 * This is the default post text.  In case of source

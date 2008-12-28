@@ -74,8 +74,7 @@ print_manage_menu();
 <tr <?php echo helper_alternate_class() ?>>
 	<td class="category" width="60%">
 		<?php
-			echo lang_get( 'plugin_ManTweet_tweets_source' ), '<br />';
-			echo '<font color="red">', plugin_lang_get( 'tweets_source_warning' ), '</font>'; 
+			echo lang_get( 'plugin_ManTweet_tweets_source' );
 		?>
 	</td>
 	<td width="40%">
@@ -160,6 +159,15 @@ print_manage_menu();
 		<select name="post_to_twitter_threshold">
 			<?php print_enum_string_option_list_with_nobody( 'access_levels', plugin_config_get( 'post_to_twitter_threshold' ) ) ?>
 		</select>
+	</td>
+</tr>
+
+<tr <?php echo helper_alternate_class() ?>>
+	<td class="category">
+		<?php echo plugin_lang_get( 'tweets_purge' ) ?>
+	</td>
+	<td>
+		<input type="checkbox" id="tweets_purge" name="tweets_purge" /> <label for="tweets_purge"><?php echo plugin_lang_get( 'tweets_purge' ) ?></label>
 	</td>
 </tr>
 

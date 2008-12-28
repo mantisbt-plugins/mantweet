@@ -21,6 +21,7 @@ access_ensure_global_level( config_get( 'manage_plugin_threshold' ) );
 
 require_once( config_get( 'plugin_path' ) . 'ManTweet' . DIRECTORY_SEPARATOR . 'mantweet_api.php' ); 
 
+$f_tweets_purge = gpc_get_bool( 'tweets_purge' );
 $f_tweets_source = gpc_get_string( 'tweets_source', '' );
 $f_import_query = gpc_get_string( 'import_query', '' );
 $f_post_default_text = gpc_get_string( 'post_default_text', '' );
@@ -30,8 +31,11 @@ $f_avatar_size = gpc_get_int( 'avatar_size', 48 );
 $f_post_to_twitter_threshold = gpc_get_int( 'post_to_twitter_threshold', NOBODY );
 
 if ( !is_blank( $f_tweets_source ) && plugin_config_get( 'tweets_source' ) != $f_tweets_source ) {
-	mantweet_purge();
 	plugin_config_set( 'tweets_source', $f_tweets_source );
+}
+
+if ( $f_tweets_purge ) {
+	mantweet_purge();
 }
 
 if ( !is_blank( $f_import_query ) && plugin_config_get( 'import_query' ) != $f_import_query ) {
