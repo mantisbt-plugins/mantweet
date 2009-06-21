@@ -11,7 +11,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-require_once( 'twitter_api.php' );
+require_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'twitter_api.php' );
 
 /**
  * A class that contains all the information relating to a tweet.
@@ -103,7 +103,7 @@ function mantweet_add( $p_mantweet_update ) {
 
 	$t_updates_table = plugin_table( 'updates' );
 
-	$t_query = "INSERT INTO $t_updates_table ( author_id, status, date_submitted, date_updated ) VALUES (" . db_param( 0 ) . ", " . db_param( 1 ) . ", '" . db_now() . "', '" . db_now() . "')";
+	$t_query = "INSERT INTO $t_updates_table ( author_id, status, date_submitted, date_updated ) VALUES (" . db_param( 0 ) . ", " . db_param( 1 ) . ", '" . mantweet_db_now() . "', '" . mantweet_db_now() . "')";
 
 	db_query_bound( $t_query, array( $p_mantweet_update->author_id, $p_mantweet_update->status ) );
 
@@ -148,8 +148,8 @@ function mantweet_get_page( $p_page_id, $p_per_page ) {
 		$t_current_update->tw_id = $t_row['tw_id'];
 		$t_current_update->tw_username = $t_row['tw_username'];
 		$t_current_update->tw_avatar = $t_row['tw_avatar'];
-		$t_current_update->date_submitted = db_unixtimestamp( $t_row['date_submitted'] );
-		$t_current_update->date_updated = db_unixtimestamp( $t_row['date_updated'] );
+		$t_current_update->date_submitted = mantweet_db_unixtimestamp( $t_row['date_submitted'] );
+		$t_current_update->date_updated = mantweet_db_unixtimestamp( $t_row['date_updated'] );
 
 		$t_updates[] = $t_current_update;
 	}
@@ -260,7 +260,7 @@ function mantweet_import_from_twitter() {
 				// If new, then add it.				
 				if ( db_result( $t_result ) == 0 ) {
 					$t_status = $t_tweet->text;
-					$t_created_at = db_date( strtotime( $t_tweet->created_at ), /* gmt */ false );
+					$t_created_at = mantweet_db_date( strtotime( $t_tweet->created_at ), /* gmt */ false );
 
 					$t_query = "INSERT INTO $t_updates_table ( tw_id, tw_username, tw_avatar, status, date_submitted, date_updated ) VALUES (" . db_param( 0 ) . ", " . db_param( 1 ) . ", " . db_param( 2 ) . ", " . db_param( 3 ) . ", " . db_param( 4 ) . ", " . db_param( 5 ) . ")";
 					db_query_bound( $t_query, array( $t_tweet->id, $t_tweet->from_user, $t_tweet->profile_image_url, $t_status, $t_created_at, $t_created_at ) );
@@ -275,4 +275,47 @@ function mantweet_import_from_twitter() {
 		
 		unset( $t_twitter_api );
 	}
+}
+
+/**
+ * Convert db compatible timestamp into a unix timestamp.
+ * 
+ * @param $p_date  The date to convert or null to use current time.
+ */
+function mantweet_db_unixtimestamp( $p_date = null ) {
+	global $g_db;
+
+	if ( null !== $p_date ) {
+		$p_timestamp = $g_db->UnixTimeStamp( $p_date );
+	} else {
+		$p_timestamp = time();
+	}
+
+	return $p_timestamp ;
+}
+
+/**
+ * Get current time as db compatible date.
+ */
+function mantweet_db_now() {
+	global $g_db;
+
+	return $g_db->DBTimeStamp(time());
+}
+
+/**
+ * Convert unix timestamp to a db compatible date.
+ * 
+ * @param $p_timestamp The time stamp to or null for current time.
+ */
+function mantweet_db_date( $p_timestamp=null ) {
+	global $g_db;
+
+	if ( null !== $p_timestamp ) {
+		$p_date = $g_db->UserTimeStamp($p_timestamp);
+	} else {
+		$p_date = $g_db->UserTimeStamp(time());
+	}
+
+	return $p_date;
 }
