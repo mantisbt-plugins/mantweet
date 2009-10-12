@@ -13,6 +13,7 @@
 
 require_once( config_get( 'absolute_path' ) . 'core.php' );
 require_once( config_get( 'class_path' ) . 'MantisPlugin.class.php' );
+require_once( dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'mantweet_api.php' );
 
 /**
  * A plugin that provides a Twitter like functionality within the bug tracker.
@@ -27,7 +28,7 @@ class ManTweetPlugin extends MantisPlugin {
 		$this->description	= lang_get( 'plugin_ManTweet_description' );
 		$this->page		= 'config';
 
-		$this->version		= '2.0';
+		$this->version		= '2.1';
 		$this->requires		= array(
 			'MantisCore' => '1.2.0',
 		);
@@ -129,6 +130,12 @@ class ManTweetPlugin extends MantisPlugin {
 					tw_id			I	 	UNSIGNED DEFAULT '0'"
 				)
 			),
+			array( 'AlterColumnSQL',
+				array( plugin_table( 'updates' ), "
+					tw_id			I8		UNSIGNED DEFAULT '0'"
+				)
+			),
+			array( 'UpdateFunction', "mantweet_purge_cached_entries", array() ),
 		);
 	}
 

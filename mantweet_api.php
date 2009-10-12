@@ -319,3 +319,16 @@ function mantweet_db_date( $p_timestamp=null ) {
 
 	return $p_date;
 }
+
+/**
+ * Used by the upgrade script to purge cached entries.  This is used to recover from
+ * a bug where Tweets were cached more than once.
+ */
+function install_mantweet_purge_cached_entries() {
+	$t_updates_table = plugin_table( 'updates' );
+
+	$t_query = "DELETE FROM $t_updates_table WHERE tw_id <> 0";
+	db_query( $t_query );
+
+	return true;
+}
