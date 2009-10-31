@@ -1,6 +1,0 @@
-ManTweet is a Twitter add-on for Mantis Bug Tracker.  It provides the following features:
-
-1. Private: A Twitter clone that is private to the users of the bug tracker.  All tweets are stored in MantisBT database.
-2. Public: A way to import conversations going on Twitter that are relevant to the company or project that is using Mantis Bug Tracker.  Tweets are stored on Twitter and are cached in MantisBT database.
-
-Note that the above two modes are exclusive and can't be combined.
