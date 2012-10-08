@@ -1,6 +1,6 @@
-## MantisBT Microblogging Plugin (ManTweet)
+## ManTweet - a twitter plugin for MantisBT
 
-Copyright (C) 2008-2009 Victor Boctor, mantisbt.org
+Copyright (C) Victor Boctor, mantisbt.org
 
 ### Description
 
@@ -16,7 +16,7 @@ Note that the above two modes are exclusive and can't be combined.
 
 ### Requirements
 
-- MantisBT 1.2.0
+- MantisBT 1.2.x
 - CURL PHP extension.
 - PHP 5.1.x or above.
 
