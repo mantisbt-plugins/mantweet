@@ -123,12 +123,12 @@ class ManTweetPlugin extends MantisPlugin {
 			),
 			array( 'AddColumnSQL',
 				array( plugin_table( 'updates' ), "
-					tw_username		C(64) 	NOTNULL DEFAULT \" '' \""
+					tw_username		C(64) 	NOTNULL DEFAULT ''"
 				)
 			),
 			array( 'AddColumnSQL',
 				array( plugin_table( 'updates' ), "
-					tw_avatar		C(250) 	NOTNULL DEFAULT \" '' \""
+					tw_avatar		C(250) 	NOTNULL DEFAULT ''"
 				)
 			),
 			array( 'AddColumnSQL',
@@ -141,7 +141,7 @@ class ManTweetPlugin extends MantisPlugin {
 					tw_id			I8		UNSIGNED DEFAULT '0'"
 				)
 			),
-			array( 'UpdateFunction', "mantweet_purge_cached_entries", array() ),
+			array( 'UpdateFunction', 'install_mantweet_purge_cached_entries', array() ),
 		);
 	}
 
