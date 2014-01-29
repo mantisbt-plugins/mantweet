@@ -28,36 +28,36 @@ class MantweetUpdate
 	 * The tweet id in the database.
 	 */
 	var $id = 0;
-	
+
 	/**
 	 * The tweet content.
 	 */
 	var $status = '';
-	
+
 	/**
 	 * The tweet author id (i.e. user id) or 0 for tweets imported
 	 * from twitter.
 	 */
 	var $author_id = 0;
-	
+
 	/**
 	 * The tweet project id, currently tweets are not associated with projects,
 	 * hence, the id is ALL_PROJECTS.
 	 */
 	var $project_id = ALL_PROJECTS;
-	
+
 	/**
 	 * For tweets imported from twitters this is set to Twitter
 	 * tweet id.  Otherwise it is set to 0.
 	 */
 	var $tw_id = 0;
-	
+
 	/**
 	 * For tweets imported from Twitter this is set to Twitter
 	 * user name of the author of the tweet, otherwise 0.
 	 */
 	var $tw_username = '';
-	
+
 	/**
 	 * For tweets imported from Twitter this is set to the URL
 	 * of the user's avatar, otherwise it is left empty.
@@ -69,7 +69,7 @@ class MantweetUpdate
 	 * function.
 	 */
 	var $date_submitted = null;
-	
+
 	/**
 	 * The last update timestamp for the tweet.  This is setup nby the mantweet_add()
 	 * function and is currently never changed since ManTweet doesn't support editing.
@@ -80,19 +80,19 @@ class MantweetUpdate
 /**
  * Checks if the current logged in user has the necessary access level to submit
  * a tweet.
- * 
+ *
  * @returns bool true for yes, otherwise false.
  */
 function mantweet_can_post() {
-	return 
-		( plugin_config_get( 'tweets_source' ) == 'local' ) && 
+	return
+		( plugin_config_get( 'tweets_source' ) == 'local' ) &&
 		access_has_global_level( plugin_config_get( 'post_threshold' ) );
 }
 
 /**
  * Adds a tweet.  This functional sets the submitted / last updated timestamps to now.
- * 
- * @param MantweetUpdate $p_mantweet_update  The information about the tweet to be added. 
+ *
+ * @param MantweetUpdate $p_mantweet_update  The information about the tweet to be added.
  */
 function mantweet_add( $p_mantweet_update ) {
 	if ( !mantweet_can_post() ) {
@@ -124,11 +124,11 @@ function mantweet_add( $p_mantweet_update ) {
 /**
  * Gets the tweet visible on a page given the page number (1 based)
  * and the number of tweets per page.
- * 
+ *
  * @param int $p_page_id   A 1-based page number.
  * @param int $p_per_page  The number of tweets to display per page.
- * 
- * @returns Array of MantweetUpdate class instances. 
+ *
+ * @returns Array of MantweetUpdate class instances.
  */
 function mantweet_get_page( $p_page_id, $p_per_page ) {
 	$t_updates_table = plugin_table( 'updates' );
@@ -165,12 +165,12 @@ function mantweet_get_page( $p_page_id, $p_per_page ) {
 
 /**
  * Gets the total number of tweets in the database.
- * 
+ *
  * @returns the number of tweets.
  */
 function mantweet_get_updates_count() {
 	$t_updates_table = plugin_table( 'updates' );
-	
+
 	if ( plugin_config_get( 'tweets_source' ) == 'local' ) {
 		$t_where = 'WHERE tw_id = 0';
 	} else {
@@ -196,7 +196,7 @@ function mantweet_purge() {
 	}
 
 	$t_query = "DELETE FROM $t_updates_table $t_where";
-	db_query( $t_query );	
+	db_query( $t_query );
 }
 
 function mantweet_get_max_twitter_id() {
@@ -204,11 +204,11 @@ function mantweet_get_max_twitter_id() {
 
 	$t_query = "SELECT tw_id FROM $t_updates_table ORDER BY tw_id DESC";
 	$t_result = db_query( $t_query, 1 );
-	
+
 	if ( db_num_rows( $t_result ) == 0 ) {
 		return 0;
 	}
-	
+
 	return db_result( $t_result );
 }
 
@@ -252,18 +252,18 @@ function mantweet_import_from_twitter() {
 		#echo '<pre>';
 		#print_r( $t_response );
 		#echo '</pre>';
-		
+
 		$t_result_count = count( $t_response->results );
-		
+
 		if ( $t_result_count > 0 ) {
 			$t_updates_table = plugin_table( 'updates' );
-		
+
 			foreach ( $t_response->results as $t_tweet ) {
 				// Check that tweet doesn't exist before adding.
 				$t_search_query = "SELECT count(*) FROM $t_updates_table WHERE tw_id = " . db_param( 0 );
 				$t_result = db_query_bound( $t_search_query, array( $t_tweet->id ) );
 
-				// If new, then add it.				
+				// If new, then add it.
 				if ( db_result( $t_result ) == 0 ) {
 					$t_status = $t_tweet->text;
 					$t_created_at = mantweet_db_date( strtotime( $t_tweet->created_at ), /* gmt */ false );
@@ -273,19 +273,19 @@ function mantweet_import_from_twitter() {
 				}
 			}
 		}
-			
-		$t_page++;		
+
+		$t_page++;
 		if ( $t_result_count < $t_results_per_page ) {
 			$t_more_work = false;
 		}
-		
+
 		unset( $t_twitter_api );
 	}
 }
 
 /**
  * Convert db compatible timestamp into a unix timestamp.
- * 
+ *
  * @param $p_date  The date to convert or null to use current time.
  */
 function mantweet_db_unixtimestamp( $p_date = null ) {
@@ -311,7 +311,7 @@ function mantweet_db_now() {
 
 /**
  * Convert unix timestamp to a db compatible date.
- * 
+ *
  * @param $p_timestamp The time stamp to or null for current time.
  */
 function mantweet_db_date( $p_timestamp=null ) {
