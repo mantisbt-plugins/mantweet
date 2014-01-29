@@ -196,14 +196,14 @@ function mantweet_purge() {
 	}
 
 	$t_query = "DELETE FROM $t_updates_table $t_where";
-	db_query( $t_query );
+	db_query_bound( $t_query );
 }
 
 function mantweet_get_max_twitter_id() {
 	$t_updates_table = plugin_table( 'updates' );
 
 	$t_query = "SELECT tw_id FROM $t_updates_table ORDER BY tw_id DESC";
-	$t_result = db_query( $t_query, 1 );
+	$t_result = db_query_bound( $t_query, null, 1 );
 
 	if ( db_num_rows( $t_result ) == 0 ) {
 		return 0;
@@ -334,7 +334,7 @@ function install_mantweet_purge_cached_entries() {
 	$t_updates_table = plugin_table( 'updates' );
 
 	$t_query = "DELETE FROM $t_updates_table WHERE tw_id <> 0";
-	db_query( $t_query );
+	db_query_bound( $t_query );
 
 	return true;
 }
