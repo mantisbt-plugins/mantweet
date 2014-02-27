@@ -34,4 +34,4 @@ Note that the above two modes are exclusive and can't be combined.
 
 The latest source code can be found on:
 
-    git@github.com:vboctor/mantweet.git
+    https://github.com/mantisbt-plugins/mantweet
