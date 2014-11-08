@@ -34,9 +34,9 @@ class ManTweetPlugin extends MantisPlugin {
 		$this->description	= lang_get( 'plugin_ManTweet_description' );
 		$this->page		= 'config';
 
-		$this->version		= '2.1';
+		$this->version		= '2.2';
 		$this->requires		= array(
-			'MantisCore' => '1.2.0',
+			'MantisCore' => '1.3.0',
 		);
 
 		$this->author		= 'Victor Boctor';
