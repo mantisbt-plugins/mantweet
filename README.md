@@ -1,3 +1,5 @@
+**This plugin is not working with latest Twitter API.  Contributions are welcome via pull requests**
+
 ## ManTweet - a twitter plugin for MantisBT
 
 Copyright (C) Victor Boctor, mantisbt.org
