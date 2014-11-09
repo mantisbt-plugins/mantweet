@@ -16,7 +16,7 @@ Note that the above two modes are exclusive and can't be combined.
 
 ### Requirements
 
-- MantisBT 1.2.x
+- MantisBT 1.3.x
 - CURL PHP extension.
 - PHP 5.1.x or above.
 
