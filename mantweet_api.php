@@ -109,9 +109,19 @@ function mantweet_add( $p_mantweet_update ) {
 
 	$t_updates_table = plugin_table( 'updates' );
 
-	$t_query = "INSERT INTO $t_updates_table ( author_id, status, date_submitted, date_updated ) VALUES (" . db_param( 0 ) . ", " . db_param( 1 ) . ", '" . mantweet_db_now() . "', '" . mantweet_db_now() . "')";
+	$t_query = "INSERT INTO $t_updates_table
+		( author_id, status, date_submitted, date_updated )
+		VALUES (" . db_param() . ", " . db_param() . ", " . db_param() . ", " . db_param() . ")";
 
-	db_query_bound( $t_query, array( $p_mantweet_update->author_id, $p_mantweet_update->status ) );
+	$t_now = mantweet_db_now();
+	$t_param = array(
+		$p_mantweet_update->author_id,
+		$p_mantweet_update->status,
+		$t_now,
+		$t_now,
+	);
+
+	db_query_bound( $t_query, $t_param );
 
 	if ( access_has_global_level( plugin_config_get( 'post_to_twitter_threshold' ) ) ) {
 		$t_twitter_update = user_get_name( $p_mantweet_update->author_id ) . ': ' . $p_mantweet_update->status;
