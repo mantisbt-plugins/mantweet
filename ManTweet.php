@@ -30,8 +30,8 @@ class ManTweetPlugin extends MantisPlugin {
 	 *  A method that populates the plugin information and minimum requirements.
 	 */
 	function register() {
-		$this->name		= lang_get( 'plugin_ManTweet_title' );
-		$this->description	= lang_get( 'plugin_ManTweet_description' );
+		$this->name		= plugin_lang_get( 'title' );
+		$this->description	= plugin_lang_get( 'description' );
 		$this->page		= 'config';
 
 		$this->version		= '2.1';
@@ -164,7 +164,7 @@ class ManTweetPlugin extends MantisPlugin {
 	function process_main_menu() {
 		# return plugin_page( 'index.php' );
 		if ( access_has_global_level( plugin_config_get( 'view_threshold' ) ) ) {
-			return array( '<a href="' . plugin_page( 'index.php' ) . '">' . lang_get( 'plugin_ManTweet_menu_item' ) . '</a>' );
+			return array( '<a href="' . plugin_page( 'index.php' ) . '">' . plugin_lang_get( 'menu_item' ) . '</a>' );
 		}
 
 		return array();
