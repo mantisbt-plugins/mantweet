@@ -2,7 +2,10 @@
 
 ## ManTweet - a twitter plugin for MantisBT
 
-Copyright (C) Victor Boctor, mantisbt.org
+Copyright (c) 2008 Victor Boctor, mantisbt.org  
+Copyright (c) 2012 Mantis Team - mantisbt-dev@lists.sourceforge.net
+
+Released under the [GNU GPL v3 license](http://opensource.org/licenses/GPL-3.0).
 
 ### Description
 
