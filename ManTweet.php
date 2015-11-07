@@ -41,7 +41,7 @@ class ManTweetPlugin extends MantisPlugin {
 
 		$this->author		= 'Victor Boctor';
 		$this->contact		= 'vboctor@users.sourceforge.net';
-		$this->url		= 'http://www.mantisbt.org';
+		$this->url		= 'https://github.com/mantisbt-plugins/mantweet/issues';
 	}
 
 	/**
