@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with ManTweet.  If not, see <http://www.gnu.org/licenses/>.
 
-$s_plugin_ManTweet_index = 'ManTweet';
 $s_plugin_ManTweet_menu_item = 'ManTweet';
 $s_plugin_ManTweet_title = 'ManTweet';
 $s_plugin_ManTweet_config_title = 'ManTweet Configuration';
@@ -40,4 +39,4 @@ $s_plugin_ManTweet_import_query = 'Twitter query for importing tweets';
 $s_plugin_ManTweet_only_twitter_source = '(setting only applicable to Twitter source)';
 $s_plugin_ManTweet_only_local_source = '(setting only applicable to local source)';
 $s_plugin_ManTweet_post_default_text = 'Default text in Tweet post form';
-$s_plugin_ManTweet_tweets_purge = 'Purge all tweets for current source.';  
+$s_plugin_ManTweet_tweets_purge = 'Purge all tweets for current source.';
