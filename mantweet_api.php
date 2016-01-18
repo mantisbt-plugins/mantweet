@@ -346,5 +346,5 @@ function install_mantweet_purge_cached_entries() {
 	$t_query = "DELETE FROM $t_updates_table WHERE tw_id <> 0";
 	db_query_bound( $t_query );
 
-	return true;
+	return 2;
 }
