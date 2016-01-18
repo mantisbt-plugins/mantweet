@@ -121,7 +121,7 @@ function mantweet_add( $p_mantweet_update ) {
 		$t_now,
 	);
 
-	db_query_bound( $t_query, $t_param );
+	db_query( $t_query, $t_param );
 
 	if ( access_has_global_level( plugin_config_get( 'post_to_twitter_threshold' ) ) ) {
 		$t_twitter_update = user_get_name( $p_mantweet_update->author_id ) . ': ' . $p_mantweet_update->status;
@@ -151,7 +151,7 @@ function mantweet_get_page( $p_page_id, $p_per_page ) {
 	}
 
 	$t_query = "SELECT * FROM $t_updates_table $t_where ORDER BY date_submitted DESC";
-	$t_result = db_query_bound( $t_query, null, $p_per_page, $t_offset );
+	$t_result = db_query( $t_query, null, $p_per_page, $t_offset );
 
 	$t_updates = array();
 
@@ -188,7 +188,7 @@ function mantweet_get_updates_count() {
 	}
 
 	$t_query = "SELECT count(*) FROM $t_updates_table $t_where";
-	$t_result = db_query_bound( $t_query, null );
+	$t_result = db_query( $t_query, null );
 
 	return db_result( $t_result );
 }
@@ -206,14 +206,14 @@ function mantweet_purge() {
 	}
 
 	$t_query = "DELETE FROM $t_updates_table $t_where";
-	db_query_bound( $t_query );
+	db_query( $t_query );
 }
 
 function mantweet_get_max_twitter_id() {
 	$t_updates_table = plugin_table( 'updates' );
 
 	$t_query = "SELECT tw_id FROM $t_updates_table ORDER BY tw_id DESC";
-	$t_result = db_query_bound( $t_query, null, 1 );
+	$t_result = db_query( $t_query, null, 1 );
 
 	if ( db_num_rows( $t_result ) == 0 ) {
 		return 0;
@@ -271,7 +271,7 @@ function mantweet_import_from_twitter() {
 			foreach ( $t_response->results as $t_tweet ) {
 				// Check that tweet doesn't exist before adding.
 				$t_search_query = "SELECT count(*) FROM $t_updates_table WHERE tw_id = " . db_param( 0 );
-				$t_result = db_query_bound( $t_search_query, array( $t_tweet->id ) );
+				$t_result = db_query( $t_search_query, array( $t_tweet->id ) );
 
 				// If new, then add it.
 				if ( db_result( $t_result ) == 0 ) {
@@ -279,7 +279,7 @@ function mantweet_import_from_twitter() {
 					$t_created_at = mantweet_db_date( strtotime( $t_tweet->created_at ), /* gmt */ false );
 
 					$t_query = "INSERT INTO $t_updates_table ( tw_id, tw_username, tw_avatar, status, date_submitted, date_updated ) VALUES (" . db_param( 0 ) . ", " . db_param( 1 ) . ", " . db_param( 2 ) . ", " . db_param( 3 ) . ", " . db_param( 4 ) . ", " . db_param( 5 ) . ")";
-					db_query_bound( $t_query, array( $t_tweet->id, $t_tweet->from_user, $t_tweet->profile_image_url, $t_status, $t_created_at, $t_created_at ) );
+					db_query( $t_query, array( $t_tweet->id, $t_tweet->from_user, $t_tweet->profile_image_url, $t_status, $t_created_at, $t_created_at ) );
 				}
 			}
 		}
@@ -344,7 +344,7 @@ function install_mantweet_purge_cached_entries() {
 	$t_updates_table = plugin_table( 'updates' );
 
 	$t_query = "DELETE FROM $t_updates_table WHERE tw_id <> 0";
-	db_query_bound( $t_query );
+	db_query( $t_query );
 
 	return 2;
 }
