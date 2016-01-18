@@ -141,7 +141,7 @@ class ManTweetPlugin extends MantisPlugin {
 					tw_id			I8		UNSIGNED DEFAULT '0'"
 				)
 			),
-			array( 'UpdateFunction', 'install_mantweet_purge_cached_entries', array() ),
+			array( 'UpdateFunction', 'mantweet_purge_cached_entries', array() ),
 		);
 	}
 
